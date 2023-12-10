@@ -1,0 +1,1 @@
+{"mappings":"AAEaA,SAASC,cAAc","sources":["src/index.js"],"sourcesContent":["import axios from 'axios';\n\nconst form = document.querySelector(\"#search-form\");"],"names":["document","querySelector"],"version":3,"file":"index.a9ec6a3d.js.map"}
