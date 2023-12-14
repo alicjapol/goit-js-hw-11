@@ -1,5 +1,8 @@
 import axios from 'axios';
 import Notiflix from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+import $ from 'jquery'; 
 
 const form = document.querySelector('#search-form');
 const input = document.querySelector('input');
@@ -8,6 +11,8 @@ const gallery = document.querySelector('.gallery');
 const loadMore = document.querySelector('.load-more');
 
 let page = 1;
+
+loadMore.hidden = true;
 
 const fetchImg = async currentPage => {
   try {
@@ -46,46 +51,61 @@ const fetchImg = async currentPage => {
   }
 };
 
-loadMore.addEventListener('click', () => {
-  fetchAndRenderImg(++page);
-});
-
-loadMore.hidden = true;
 
 const fetchAndRenderImg = async currentPage => {
   try {
     const images = await fetchImg(currentPage);
-    clearGallery();
-    gallery.innerHTML = images
+    gallery.innerHTML += images
       .map(
         item => `
-      <div class="photo-card">
-        <img src="${item.largeImageURL}" alt="${item.tags}" loading="lazy" />
-        <div class="info">
-          <p class="info-item"><b>Likes:</b> ${item.likes}</p>
-          <p class="info-item"><b>Views:</b> ${item.views}</p>
-          <p class="info-item"><b>Comments:</b> ${item.comments}</p>
-          <p class="info-item"><b>Downloads:</b> ${item.downloads}</p>
+        <div class="photo-card">
+          <a href="${item.largeImageURL}" data-lightbox="gallery">
+            <img src="${item.largeImageURL}" alt="${item.tags}" loading="lazy" />
+          </a>
+          <div class="info">
+            <p class="info-item"><b>Likes:</b> ${item.likes}</p>
+            <p class="info-item"><b>Views:</b> ${item.views}</p>
+            <p class="info-item"><b>Comments:</b> ${item.comments}</p>
+            <p class="info-item"><b>Downloads:</b> ${item.downloads}</p>
+          </div>
         </div>
-      </div>
-    `
+      `
       )
       .join('');
-      if (currentPage === 1) {
-        loadMore.hidden = false;
-      }
-    } catch (error) {
-      Notiflix.Notify.failure(error.message);
-    }
-};
 
+    const lightbox = new SimpleLightbox('.gallery a');
+    loadMore.hidden = false;
+
+    lightbox.refresh();
+  } catch (error) {
+    Notiflix.Notify.failure(error.message);
+  }
+};
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
   page = 1;
+  gallery.innerHTML = ''; 
   fetchAndRenderImg(page);
+  scrollSmoothly();
 });
 
-function clearGallery() {
-  gallery.innerHTML = '';
+function scrollSmoothly() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }
+
+window.addEventListener('scroll', () => {
+    if (
+      window.scrollY + window.innerHeight > document.documentElement.scrollHeight
+    ) {
+      page++;
+      fetchAndRenderImg(page);
+    }
+  });
