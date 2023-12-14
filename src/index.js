@@ -2,7 +2,6 @@ import axios from 'axios';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import $ from 'jquery';
 
 const form = document.querySelector('#search-form');
 const input = document.querySelector('input');
@@ -30,11 +29,18 @@ const fetchImg = async currentPage => {
       `https://pixabay.com/api/?${searchParams}`
     );
     const images = response.data.hits;
-
+    loadMore.hidden = false;
     if (images.length === 0) {
+      loadMore.hidden = true;
+
       throw new Error(
         'Sorry, there are no images matching your search query. Please try again.'
       );
+    } else if (images.length > 0 && images.length < 40) {
+      Notiflix.Notify.info(
+        "We're sorry, but you've reached the end of search results."
+      );
+      loadMore.hidden = true;
     }
 
     return images.map(image => ({
@@ -73,7 +79,6 @@ const fetchAndRenderImg = async currentPage => {
       .join('');
 
     const lightbox = new SimpleLightbox('.gallery a');
-    loadMore.hidden = false;
 
     lightbox.refresh();
   } catch (error) {
@@ -86,26 +91,30 @@ form.addEventListener('submit', async e => {
   page = 1;
   gallery.innerHTML = '';
   fetchAndRenderImg(page);
-  scrollSmoothly();
 });
 
-function scrollSmoothly() {
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
-
-  window.scrollBy({
-    top: cardHeight * 2,
-    behavior: 'smooth',
-  });
-}
-
-window.addEventListener('scroll', () => {
-  if (
-    window.scrollY + window.innerHeight >
-    document.documentElement.scrollHeight
-  ) {
-    page++;
-    fetchAndRenderImg(page);
-  }
+loadMore.addEventListener('click', () => {
+  page++;
+  fetchAndRenderImg(page);
 });
+
+// function scrollSmoothly() {
+//   const { height: cardHeight } = document
+//     .querySelector('.gallery')
+//     .firstElementChild.getBoundingClientRect();
+
+//   window.scrollBy({
+//     top: cardHeight * 2,
+//     behavior: 'smooth',
+//   });
+// }
+
+// window.addEventListener('scroll', () => {
+//   if (
+//     window.scrollY + window.innerHeight >
+//     document.documentElement.scrollHeight
+//   ) {
+//     page++;
+//     fetchAndRenderImg(page);
+//   }
+// });
