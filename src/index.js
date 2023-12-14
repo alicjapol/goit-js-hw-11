@@ -2,7 +2,7 @@ import axios from 'axios';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import $ from 'jquery'; 
+import $ from 'jquery';
 
 const form = document.querySelector('#search-form');
 const input = document.querySelector('input');
@@ -51,7 +51,6 @@ const fetchImg = async currentPage => {
   }
 };
 
-
 const fetchAndRenderImg = async currentPage => {
   try {
     const images = await fetchImg(currentPage);
@@ -85,7 +84,7 @@ const fetchAndRenderImg = async currentPage => {
 form.addEventListener('submit', async e => {
   e.preventDefault();
   page = 1;
-  gallery.innerHTML = ''; 
+  gallery.innerHTML = '';
   fetchAndRenderImg(page);
   scrollSmoothly();
 });
@@ -102,10 +101,11 @@ function scrollSmoothly() {
 }
 
 window.addEventListener('scroll', () => {
-    if (
-      window.scrollY + window.innerHeight > document.documentElement.scrollHeight
-    ) {
-      page++;
-      fetchAndRenderImg(page);
-    }
-  });
+  if (
+    window.scrollY + window.innerHeight >
+    document.documentElement.scrollHeight
+  ) {
+    page++;
+    fetchAndRenderImg(page);
+  }
+});
